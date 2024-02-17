@@ -1,11 +1,10 @@
-require './lib/btc_sender/entities/transaction'
+require './lib/btc_sender/transaction_builder'
 
 module BtcSender
   class Engine
-
-    attr_accessor :key, :blockchain_provider
-    def initialize(key, blockchain_provider)
-      @blockchain_provider = blockchain_provider
+    attr_accessor :key, :blockchain
+    def initialize(key, blockchain:)
+      @blockchain = blockchain
       @key = key
     end
 
@@ -22,49 +21,42 @@ module BtcSender
     end
 
     def utxos
-      @utxos ||= blockchain_provider.get_utxos(key.addr)
+      @utxos ||= blockchain.get_utxos(key.addr)
     end
 
     def refresh_utxos
-      @utxos = blockchain_provider.get_utxos(key.addr)
+      @utxos = blockchain.get_utxos(key.addr)
     end
 
     def send_funds!(to, amount, opts = {})
-      utxos = utxos_by_strategy(opts[:strategy] || :all, amount)
-      tx = Entities::Transaction.new(amount, to, key.addr, utxos: utxos, commission_multiplier: opts[:commission_multiplier])
-      tx.build_tx.sign(key)
-      blockchain_provider.relay_tx(tx.to_hex)
+      builder = tx_builder(to, amount, opts)
+      builder.build_tx
+
+      raise SignatureError unless builder.sign_tx(key).all?
+
+      relay_tx(builder.tx.to_payload.bth)
     end
 
-    def sign_tx(tx)
-      raise ArgumentError, 'Generate Tx first!' if tx.nil?
-
-      tx.in.each_with_index do |input, index|
-        Bitcoin.sign_data(private_key(key), tx.signature_hash_for_input(index, input.prev_out)).tap do |sig_hash|
-          input.script_sig = Bitcoin::Script.to_signature_pubkey_script(sig_hash, binary_pubkey(key))
-        end
-      end
+    def relay_tx(hex)
+      blockchain.relay_tx(hex)
     end
 
-    def private_key(key)
-      Bitcoin.open_key(key.priv)
+    def tx_builder(to, amount, opts = {})
+      utxos = utxos_by_strategy(opts[:strategy] || :shrink, amount)
+      TransactionBuilder.new(amount, to, key.addr, utxos: utxos, commission_multiplier: opts[:commission_multiplier], blockchain: blockchain)
     end
 
-    def binary_pubkey(key)
-      [key.pub].pack('H*')
-    end
+    private
 
     def fewest_utxos(amount)
       amount = amount.dup
       sorted = spendable_utxos.sort_by { |utxo| utxo['value'] }
       res = []
 
-      while amount > 0 || sorted.empty?
-        sorted.each do |utxo|
-          if utxo['value'] >= amount || utxo.last?
-            amount -= utxo['value']
-            res << sorted.delete(utxo)
-          end
+      while amount > 0 && sorted.any?
+        sorted.pop.tap do |utxo|
+          res << utxo
+          amount -= utxo['value']
         end
       end
 
@@ -79,5 +71,7 @@ module BtcSender
         spendable_utxos
       end
     end
+
+    class SignatureError < StandardError; end
   end
 end

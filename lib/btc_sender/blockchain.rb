@@ -13,7 +13,12 @@ module BtcSender
     end
 
     def get_tx(txid)
-      handle_request { _client.get("/tx/#{txid}") }
+      handle_request { with_cache(txid) { _client.get("/tx/#{txid}") }  }
+    end
+
+    def get_raw_tx(txid)
+
+      handle_request { with_cache("raw_#{txid}") { _client.get("/tx/#{txid}/raw") } }
     end
 
     def relay_tx(hex)
@@ -36,6 +41,14 @@ module BtcSender
         include HTTParty
         base_uri(base_uri)
       end
+    end
+
+    def cache
+      @cache ||= {}
+    end
+
+    def with_cache(tx_id)
+      cache.fetch(tx_id) { cache[tx_id] = yield }
     end
   end
 

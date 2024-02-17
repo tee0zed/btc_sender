@@ -8,7 +8,7 @@ require_relative 'btc_sender/address'
 module BtcSender
   require 'pry'
   ::Bitcoin.network = :testnet3
-  b = Blockchain.new
-  a = Address.new(Bitcoin::Key).restore
-  e = Engine.new(a, b)
+  $b = Blockchain.new
+  $a = Address.new(Bitcoin::Key).restore
+  $e = Engine.new($a, blockchain: $b)
 end

@@ -4,7 +4,7 @@ module BtcSender
 
     DEFAULT_WIF_PATH = './wif.txt'.freeze
 
-    def_delegators :@instance, :addr, :pub, :to_base58
+    def_delegators :@instance, :addr, :pub, :to_base58, :sign
     attr_reader :key_provider, :instance
     def initialize(key_provider)
       @key_provider = key_provider
