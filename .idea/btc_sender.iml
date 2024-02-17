@@ -11,18 +11,30 @@
     </content>
     <orderEntry type="jdk" jdkName="asdf: 2.7.7" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.8.6, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bigdecimal (v3.1.6, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bitcoin-ruby (v0.0.20, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bundler (v2.4.22, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="crack (v1.0.0, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.5.0, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="eventmachine (v1.2.7, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.16.3, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi-compiler (v1.0.1, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v1.1.0, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="httparty (v0.18.1, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mime-types (v3.3.1, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mime-types-data (v3.2021.0704, asdf: 2.7.7) [gem]" level="application" />
-    <orderEntry type="library" scope="PROVIDED" name="minitest (v5.22.2, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="multi_xml (v0.6.0, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v5.0.4, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rake (v13.1.0, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rexml (v3.2.6, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.12.0, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.12.2, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.12.3, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.12.6, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.12.1, asdf: 2.7.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="scrypt (v3.0.7, asdf: 2.7.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.20.0, asdf: 2.7.7) [gem]" level="application" />
   </component>
   <component name="RakeTasksCache-v2">
     <option name="myRootTask">

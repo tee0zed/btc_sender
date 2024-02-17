@@ -11,5 +11,4 @@ module BtcSender
   b = Blockchain.new
   a = Address.new(Bitcoin::Key).restore
   e = Engine.new(a, b)
-  binding.pry
 end
