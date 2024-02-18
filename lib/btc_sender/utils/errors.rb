@@ -1,7 +1,7 @@
 module BtcSender
   class CLIError < StandardError
     def backtrace
-      super.try(:[], 0..1)
+      super && super[0..1]
     end
   end
   class InvalidTransactionError < CLIError; end

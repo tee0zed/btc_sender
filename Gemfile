@@ -9,3 +9,4 @@ gem "bundler", ">= 2.4.0", "< 3.0"
 
 gem 'rspec'
 gem 'webmock'
+gem 'pry'

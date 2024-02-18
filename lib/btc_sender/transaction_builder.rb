@@ -1,5 +1,6 @@
 require './lib/btc_sender/utils/threadable'
-require_relative 'utils/errors'
+require './lib/btc_sender/utils/errors'
+require 'bitcoin'
 
 module BtcSender
   class TransactionBuilder
@@ -20,6 +21,7 @@ module BtcSender
 
     def build_tx
       build_raw_tx
+
       check_balance!
       add_commission
 
