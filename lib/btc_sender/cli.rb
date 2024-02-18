@@ -21,7 +21,8 @@ module BtcSender
       puts "1. Spendable balance"
       puts "2. Raw balance"
       puts "3. Send funds"
-      puts "4. Exit"
+      puts "4. Address info"
+      puts "5. Exit"
     end
 
     def handle_menu
@@ -33,7 +34,25 @@ module BtcSender
       when 3
         send_funds
       when 4
+        show_info
+      when 5
         exit
+      end
+    end
+
+    def show_info
+      within_window do
+        puts "Address: #{engine.key.addr}"
+        puts "Network: #{network(Bitcoin.network.values[8])}"
+      end
+    end
+
+    def network(network)
+      case network
+      when "bc"
+       'Bitcoin Core'
+      when "tb"
+        'Testnet'
       end
     end
 
@@ -90,6 +109,7 @@ module BtcSender
 
       until validation.call(input)
         print "Invalid input, try again: "
+        exit if input == "exit"
         input = STDIN.gets.chomp
       end
 
