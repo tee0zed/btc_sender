@@ -1,9 +1,10 @@
 require './lib/btc_sender/transaction_builder'
+require_relative 'utils/errors'
 
 module BtcSender
   class Engine
     attr_accessor :key, :blockchain
-    def initialize(key, blockchain:)
+    def initialize(key:, blockchain:)
       @blockchain = blockchain
       @key = key
     end
@@ -32,9 +33,9 @@ module BtcSender
       builder = tx_builder(to, amount, opts)
       builder.build_tx
 
-      raise SignatureError unless builder.sign_tx(key).all?
+      raise BtcSender::SignatureError unless builder.sign_tx(key)
 
-      relay_tx(builder.tx.to_payload.bth)
+      relay_tx(builder.tx_payload)
     end
 
     def relay_tx(hex)
@@ -71,7 +72,5 @@ module BtcSender
         spendable_utxos
       end
     end
-
-    class SignatureError < StandardError; end
   end
 end

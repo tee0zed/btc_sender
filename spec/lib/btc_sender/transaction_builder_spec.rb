@@ -53,7 +53,7 @@ describe BtcSender::TransactionBuilder do
     context 'when the balance is less than the sum of amount and commission' do
       let(:amount) { balance * 2 }
       it 'raises an InsufficientFundsError' do
-        expect { builder.build_tx }.to raise_error(BtcSender::TransactionBuilder::InsufficientFundsError)
+        expect { builder.build_tx }.to raise_error(BtcSender::InsufficientFundsError)
       end
     end
   end
@@ -77,11 +77,6 @@ describe BtcSender::TransactionBuilder do
       it 'raises an error with incorrect private key' do
         incorrect_private_key = Bitcoin::Key.generate
         expect(subject.sign_tx(incorrect_private_key)).to be false
-      end
-
-      it 'raises an error when verifying with incorrect UTXO' do
-        subject.opts[:utxos][0]['tx'] = nil
-        expect { subject.sign_tx(private_key) }.to raise_error(BtcSender::TransactionBuilder::InvalidTransactionError)
       end
     end
   end

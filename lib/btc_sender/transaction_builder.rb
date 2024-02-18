@@ -1,11 +1,12 @@
-require 'btc_sender/utils/threadable'
+require './lib/btc_sender/utils/threadable'
+require_relative 'utils/errors'
 
 module BtcSender
   class TransactionBuilder
     include Utils::Threadable
     include Bitcoin::Builder
 
-    SAT_PER_BYTE = 39
+    SAT_PER_BYTE = 2
     HASH_TYPE = Bitcoin::Script::SIGHASH_TYPE[:all]
 
     attr_reader :amount, :to, :from, :tx, :opts
@@ -37,17 +38,21 @@ module BtcSender
         tx.verify_input_signature(i, prev_tx)
       end.map(&:value).all?
     rescue StandardError => e
-      raise InvalidTransactionError, e.message
+      raise BtcSender::InvalidTransactionError, e.message
+    end
+
+    def tx_payload
+      tx.to_payload.bth
     end
 
     private
 
     def check_tx!
-      raise InvalidTransactionError, 'Transaction not built' unless tx
+      raise BtcSender::InvalidTransactionError, 'Transaction not built' unless tx
     end
 
     def check_balance!
-      raise InsufficientFundsError, "Insufficient funds #{balance} < #{amount + commission}" if balance < amount + commission
+      raise BtcSender::InsufficientFundsError, "Insufficient funds #{balance} < #{amount + commission}" if balance < amount + commission
     end
 
     def build_raw_tx
@@ -58,6 +63,8 @@ module BtcSender
       end
 
       self
+    rescue StandardError => e
+      raise BtcSender::InvalidTransactionError, e.message
     end
 
     def balance
@@ -69,7 +76,7 @@ module BtcSender
     end
 
     def commission
-      tx.to_payload.bytesize * (opts[:commission_multiplier] || 1) * SAT_PER_BYTE
+      tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE
     end
 
     def add_inputs(tx)
@@ -100,8 +107,5 @@ module BtcSender
         HASH_TYPE
       )
     end
-
-    class InsufficientFundsError < StandardError; end
-    class InvalidTransactionError < StandardError; end
   end
 end

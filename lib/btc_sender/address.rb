@@ -15,10 +15,14 @@ module BtcSender
       from_file(wif_path)
     rescue Errno::ENOENT
       generate_and_save
+    ensure
+      self
     end
 
     def from_string(wif)
       @instance = key_provider.from_base58(wif)
+
+      self
     end
 
     def from_file(wif_path = DEFAULT_WIF_PATH)

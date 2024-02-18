@@ -1,3 +1,5 @@
+require_relative 'utils/errors'
+
 module BtcSender
   class Blockchain
     TESTNET_BASE_URI = 'https://blockstream.info/testnet/api/'.freeze
@@ -17,7 +19,6 @@ module BtcSender
     end
 
     def get_raw_tx(txid)
-
       handle_request { with_cache("raw_#{txid}") { _client.get("/tx/#{txid}/raw") } }
     end
 
@@ -30,9 +31,9 @@ module BtcSender
     def handle_request
       response = yield
     rescue StandardError => e
-      raise ConnectionError, e.message
+      raise BtcSender::ConnectionError, e.message
     else
-      raise ConnectionError, 'Request failed: ' + response.code.to_s unless response.success?
+      raise BtcSender::ConnectionError, "Request failed: #{response.code.to_s} #{response.body}" unless response.success?
       response
     end
 
@@ -51,6 +52,4 @@ module BtcSender
       cache.fetch(tx_id) { cache[tx_id] = yield }
     end
   end
-
-  class ConnectionError < StandardError; end
 end

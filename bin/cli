@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require "./lib/btc_sender"
+require "./lib/btc_sender/cli"
+
+testnet = ARGV.include?("--testnet")
+Bitcoin.network = testnet ? :testnet : :bitcoin
+
+address = BtcSender::Address.new(Bitcoin::Key)
+if ARGV.include?("--path")
+  key = address.restore(ARGV[ARGV.index("--path") + 1])
+else
+  key = address.restore
+end
+
+blockchain = BtcSender::Blockchain.new(testnet: testnet)
+engine = BtcSender::Engine.new(key: key, blockchain: blockchain)
+
+BtcSender::CLI.new(engine: engine).run
