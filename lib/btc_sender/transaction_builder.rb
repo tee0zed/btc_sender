@@ -78,7 +78,7 @@ module BtcSender
     end
 
     def commission
-      tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE
+      opts[:commission] || (tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE)
     end
 
     def add_inputs(tx)
