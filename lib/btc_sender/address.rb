@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module BtcSender
   class Address
     extend Forwardable
@@ -20,7 +22,7 @@ module BtcSender
     end
 
     def from_string(wif)
-      @instance = key_provider.from_base58(wif)
+      @instance = key_provider.from_wif(wif)
 
       self
     end

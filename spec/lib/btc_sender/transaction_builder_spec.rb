@@ -43,8 +43,7 @@ describe BtcSender::TransactionBuilder do
   end
 
   describe '#sign_tx' do
-    let(:key) { Bitcoin::Key.new }
-    let(:private_key) { Bitcoin::Key.generate }
+    let(:private_key) { ::Bitcoin.bitcoin_elliptic_curve }
 
     before do
       builder.build_tx
@@ -59,7 +58,7 @@ describe BtcSender::TransactionBuilder do
       end
 
       it 'raises an error with incorrect private key' do
-        incorrect_private_key = Bitcoin::Key.generate
+        incorrect_private_key = ::Bitcoin.bitcoin_elliptic_curve
         expect(subject.sign_tx(incorrect_private_key)).to be false
       end
     end

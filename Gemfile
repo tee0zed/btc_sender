@@ -1,12 +1,17 @@
 # frozen_string_literal: true
-ruby '2.7.8'
+ruby '3.3.4'
 
 source "https://rubygems.org"
 
 # Specify your gem's dependencies in btc_sender.gemspec
 gemspec
-gem "bundler", ">= 2.4.0", "< 3.0"
 
-gem 'rspec'
-gem 'webmock'
-gem 'pry'
+gem "bundler"
+gem 'bitcoinrb', require: 'bitcoin'
+gem 'httparty'
+
+group :development, :test do
+  gem 'rspec'
+  gem 'webmock'
+  gem 'pry'
+end

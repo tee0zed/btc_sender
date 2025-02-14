@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/sbounmy/bitcoin-ruby.git
+  revision: 63b690a7c647b5ae3a0d430a8bf606edd2ef5737
+  branch: master
+  specs:
+    bitcoin-ruby (0.0.20)
+      eventmachine
+      ffi
+      scrypt
+
 PATH
   remote: .
   specs:
@@ -9,19 +19,16 @@ GEM
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
     bigdecimal (3.1.6)
-    bitcoin-ruby (0.0.20)
-      eventmachine
-      ffi
-      scrypt
     coderay (1.1.3)
     crack (1.0.0)
       bigdecimal
       rexml
     diff-lcs (1.5.0)
     eventmachine (1.2.7)
-    ffi (1.16.3)
-    ffi-compiler (1.0.1)
-      ffi (>= 1.0.0)
+    ffi (1.17.1-x86_64-darwin)
+    ffi (1.17.1-x86_64-linux-gnu)
+    ffi-compiler (1.3.2)
+      ffi (>= 1.15.5)
       rake
     hashdiff (1.1.0)
     httparty (0.18.1)
@@ -36,7 +43,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.0.4)
-    rake (13.1.0)
+    rake (13.2.1)
     rexml (3.2.6)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -51,8 +58,9 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
-    scrypt (3.0.7)
+    scrypt (3.0.8)
       ffi-compiler (>= 1.0, < 2.0)
+      rake (>= 9, < 14)
     webmock (3.20.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -63,16 +71,16 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  bitcoin-ruby
+  bitcoin-ruby!
   btc_sender!
-  bundler (>= 2.4.0, < 3.0)
+  bundler
   httparty
   pry
   rspec
   webmock
 
 RUBY VERSION
-   ruby 2.7.8p225
+   ruby 3.3.4p94
 
 BUNDLED WITH
    2.4.22

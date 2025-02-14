@@ -19,9 +19,9 @@ If the wif.txt file is not present, the program will generate a new one.
 bin/btc_sender --path /path/to/wif.txt
 ```
 
-- You can use the testnet. Just run the following command:
+- You can use the signet. Just run the following command:
 ```bash
-bin/btc_sender --testnet
+bin/btc_sender --signet
 ```
 
 ## Docker
@@ -30,5 +30,5 @@ You can also run the program using docker. Just run the following command:
 ```bash
 docker build -t btc_sender .
 docker run --rm -it btc_sender
-bin/btc_sender --testnet
+bin/btc_sender --signet
 ```

@@ -1,12 +1,12 @@
 RSpec.describe BtcSender::Blockchain do
-  let(:client) { described_class.new(testnet: true) }
+  let(:client) { described_class.new(signet: true) }
 
   describe '#get_utxos' do
     let(:address) { 'some_address' }
     let(:response) { [{ 'txid' => 'txid123', 'vout' => 0, 'value' => 10_000 }] }
 
     before do
-      stub_request(:get, "https://blockstream.info/testnet/api/address/#{address}/utxo")
+      stub_request(:get, "https://mempool.space/signet/api/address/#{address}/utxo")
         .to_return(status: 200, body: response.to_json)
     end
 
@@ -23,7 +23,7 @@ RSpec.describe BtcSender::Blockchain do
     let(:response) { { 'txid' => txid, 'size' => 200, 'vin' => [], 'vout' => [] } }
 
     before do
-      stub_request(:get, "https://blockstream.info/testnet/api/tx/#{txid}")
+      stub_request(:get, "https://mempool.space/signet/api/tx/#{txid}")
         .to_return(status: 200, body: response.to_json)
     end
 
@@ -40,7 +40,7 @@ RSpec.describe BtcSender::Blockchain do
     let(:response) { { success: true } }
 
     before do
-      stub_request(:post, 'https://blockstream.info/testnet/api/tx')
+      stub_request(:post, 'https://mempool.space/signet/api/tx')
         .with(body: hex)
         .to_return(status: 200, body: response.to_json)
     end
@@ -59,7 +59,7 @@ RSpec.describe BtcSender::Blockchain do
 
     context 'when request fails with 401' do
       before do
-        stub_request(:get, "https://blockstream.info/testnet/api/address/#{address}/utxo")
+        stub_request(:get, "https://mempool.space/signet/api/address/#{address}/utxo")
           .to_return(status: 401, body: response.to_json)
       end
 

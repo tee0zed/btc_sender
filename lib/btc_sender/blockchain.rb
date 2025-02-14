@@ -2,12 +2,12 @@ require_relative 'utils/errors'
 
 module BtcSender
   class Blockchain
-    TESTNET_BASE_URI = 'https://blockstream.info/testnet/api/'.freeze
-    MAINNET_BASE_URI = 'https://blockstream.info/api/'.freeze
+    SIGNET_BASE_URI = 'https://mempool.space/signet/api'.freeze
+    MAINNET_BASE_URI = 'https://mempool.space/api'.freeze
 
     attr_reader :_client
-    def initialize(testnet: true)
-      @_client = built_client(testnet ? TESTNET_BASE_URI : MAINNET_BASE_URI)
+    def initialize(signet: true)
+      @_client = built_client(signet ? SIGNET_BASE_URI : MAINNET_BASE_URI)
     end
 
     def get_utxos(address)
@@ -15,11 +15,11 @@ module BtcSender
     end
 
     def get_tx(txid)
-      handle_request { with_cache(txid) { _client.get("/tx/#{txid}") }  }
+      with_cache(txid) { handle_request { _client.get("/tx/#{txid}") }  }
     end
 
     def get_raw_tx(txid)
-      handle_request { with_cache("raw_#{txid}") { _client.get("/tx/#{txid}/raw") } }
+      with_cache("raw_#{txid}") { handle_request { _client.get("/tx/#{txid}/raw") } }
     end
 
     def relay_tx(hex)

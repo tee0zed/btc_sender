@@ -103,9 +103,12 @@ module BtcSender
     end
 
     def script_signature(key, signature)
+      digest = OpenSSL::Digest::SHA256.new
+      message_hash = digest.digest(signature)
+
       Bitcoin::Script.to_signature_pubkey_script(
-        key.sign(signature),
-        key.pub.htb,
+        key.sign(digest, message_hash),
+        key.public_key.to_bn.to_s(2),
         HASH_TYPE
       )
     end

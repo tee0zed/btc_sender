@@ -15,6 +15,7 @@
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require 'rspec'
 require 'webmock/rspec'
+require 'pry'
 
 Dir[File.join(File.dirname(__FILE__), '../lib/**/*.rb')].each { |f| require f }
 
