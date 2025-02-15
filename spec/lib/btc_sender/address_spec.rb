@@ -1,7 +1,7 @@
 RSpec.describe BtcSender::Address do
   let(:wif_path) { 'wif.txt' }
   let(:wif_value) { 'wif_value' }
-  let(:key_provider) { double(from_base58: instance_double('Bitcoin::Key'), new: instance_double('Bitcoin::Key',to_base58: wif_value)) }
+  let(:key_provider) { double(from_wif: instance_double('Bitcoin::Key'), generate: instance_double('Bitcoin::Key', to_wif: wif_value)) }
 
   subject(:address) { described_class.new(key_provider) }
 

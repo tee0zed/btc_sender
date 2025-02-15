@@ -1,8 +1,11 @@
 require './lib/btc_sender/transaction_builder'
 require_relative 'utils/errors'
+require_relative 'utils/threadable'
 
 module BtcSender
   class Engine
+    using Utils::Threadable
+
     attr_accessor :key, :blockchain
     def initialize(key:, blockchain:)
       @blockchain = blockchain
@@ -22,11 +25,17 @@ module BtcSender
     end
 
     def utxos
-      @utxos ||= blockchain.get_utxos(key.addr)
+      @utxos ||= begin
+        blockchain.get_utxos(key.to_addr).parsed_response.threaded_map do |utxo, _|
+          utxo['raw_tx'] = blockchain.get_raw_tx(utxo['txid']).b
+          utxo
+        end
+      end
     end
 
     def refresh_utxos
-      @utxos = blockchain.get_utxos(key.addr)
+      @utxos = nil
+      utxos
     end
 
     def send_funds!(to, amount, opts = {})
@@ -44,7 +53,7 @@ module BtcSender
 
     def tx_builder(to, amount, opts = {})
       utxos = utxos_by_strategy(opts[:strategy] || :shrink, amount)
-      TransactionBuilder.new(amount, to, key.addr, utxos: utxos, commission_multiplier: opts[:commission_multiplier], blockchain: blockchain)
+      TransactionBuilder.new(amount, to, key.to_addr, utxos: utxos, commission_multiplier: opts[:commission_multiplier], blockchain: blockchain)
     end
 
     private

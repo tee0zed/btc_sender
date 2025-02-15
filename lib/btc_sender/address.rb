@@ -6,7 +6,7 @@ module BtcSender
 
     DEFAULT_WIF_PATH = './wif.txt'.freeze
 
-    def_delegators :@instance, :addr, :pub, :to_base58, :sign
+    def_delegators :@instance, :to_addr, :pubkey, :to_wif, :sign
     attr_reader :key_provider, :instance
     def initialize(key_provider)
       @key_provider = key_provider
@@ -33,7 +33,7 @@ module BtcSender
 
     def generate_and_save
       @instance = key_provider.generate.tap do |k|
-        safe_save(k.to_base58)
+        safe_save(k.to_wif)
       end
     end
 

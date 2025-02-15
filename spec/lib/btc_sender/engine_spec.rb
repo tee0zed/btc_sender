@@ -1,5 +1,5 @@
 RSpec.describe BtcSender::Engine do
-  let(:key) { double('Key', addr: 'sender_address') }
+  let(:key) { double('Key', to_addr: 'sender_address') }
   let(:blockchain) { double('Blockchain') }
 
   subject { described_class.new(key: key, blockchain: blockchain) }
@@ -12,8 +12,10 @@ RSpec.describe BtcSender::Engine do
     ]
   end
 
+
   before do
-    allow(blockchain).to receive(:get_utxos).with(key.addr).and_return(utxos)
+    allow(blockchain).to receive(:get_utxos).with(key.to_addr).and_return(double('Response', parsed_response: utxos))
+    allow(blockchain).to receive(:get_raw_tx).and_return('raw_tx')
   end
 
   describe '#raw_balance' do
@@ -37,7 +39,7 @@ RSpec.describe BtcSender::Engine do
   describe '#refresh_utxos' do
     it 'refreshes the UTXOs' do
       subject.refresh_utxos
-      expect(blockchain).to have_received(:get_utxos).with(key.addr)
+      expect(blockchain).to have_received(:get_utxos).with(key.to_addr)
     end
   end
 
@@ -79,7 +81,7 @@ RSpec.describe BtcSender::Engine do
     it 'creates a TransactionBuilder instance with correct parameters' do
       expect(subject.tx_builder(to_address, amount, opts)).to eq(builder)
       expect(subject).to have_received(:utxos_by_strategy).with(:shrink, amount)
-      expect(BtcSender::TransactionBuilder).to have_received(:new).with(amount, to_address, key.addr, utxos: utxos, commission_multiplier: nil, blockchain: blockchain)
+      expect(BtcSender::TransactionBuilder).to have_received(:new).with(amount, to_address, key.to_addr, utxos: utxos, commission_multiplier: nil, blockchain: blockchain)
     end
   end
 end

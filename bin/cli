@@ -4,7 +4,7 @@ require "./lib/btc_sender"
 require "./lib/btc_sender/cli"
 
 signet = ARGV.include?("--signet")
-Bitcoin.network = signet ? :signet : :bitcoin
+Bitcoin.chain_params = signet ? :signet : :bitcoin
 
 address = BtcSender::Address.new(Bitcoin::Key)
 if ARGV.include?("--path")

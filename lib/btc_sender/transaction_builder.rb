@@ -5,12 +5,12 @@ require 'bitcoin'
 module BtcSender
   class TransactionBuilder
     include Utils::Threadable
-    include Bitcoin::Builder
 
     SAT_PER_BYTE = 2
-    HASH_TYPE = Bitcoin::Script::SIGHASH_TYPE[:all]
+    HASH_TYPE = ::Bitcoin::SIGHASH_TYPE[:all]
 
     attr_reader :amount, :to, :from, :tx, :opts
+
     def initialize(amount, to, from, opts = {})
       @opts = opts
       @amount = amount
@@ -31,14 +31,28 @@ module BtcSender
     def sign_tx(key)
       check_tx!
 
-      threaded_job(tx.in) do |input, i|
-        prev_tx = opts[:utxos][i]['tx']
-        input.script_sig = script_signature(key,
-          tx.signature_hash_for_input(i, prev_tx, HASH_TYPE)
-        )
+      require 'pry';
+      binding.pry
 
-        tx.verify_input_signature(i, prev_tx)
-      end.map(&:value).all?
+      tx.inputs.each_with_index do |input, i|
+        utxo = opts[:utxos][i]
+        prev_out = Bitcoin::Tx.parse_from_payload(utxo['raw_tx']).outputs[utxo['vout']]
+        prev_script_pubkey = prev_out.script_pubkey
+        sig_hash = tx.sighash_for_input(i, prev_script_pubkey, amount: prev_out.value, hash_type: HASH_TYPE)
+        signature = key.sign(sig_hash)
+
+        input.script_sig = Bitcoin::Script.new
+        input.script_sig << signature
+        input.script_sig << key.pubkey
+
+        if input.has_witness?
+          input.witness = []
+          input.witness << signature
+          input.witness << key.pubkey
+        end
+      end
+
+      true
     rescue StandardError => e
       raise BtcSender::InvalidTransactionError, e.message
     end
@@ -58,10 +72,10 @@ module BtcSender
     end
 
     def build_raw_tx
-      @tx ||= ::Bitcoin::Protocol::Tx.new.tap do |tx|
+      @tx ||= Bitcoin::Tx.new.tap do |tx|
         add_inputs(tx)
-        tx.add_out(output(amount, to))
-        tx.add_out(output(balance - amount, from))
+        tx.outputs << output(amount, to_address(to))
+        tx.outputs << output(balance - amount, to_address(from)) if balance > amount
       end
 
       self
@@ -69,48 +83,39 @@ module BtcSender
       raise BtcSender::InvalidTransactionError, e.message
     end
 
-    def balance
-      opts[:utxos].reduce(0) { |sum, utxo| sum + utxo['value'] }
-    end
-
-    def add_commission
-      tx.out[1].value -= commission
-    end
-
-    def commission
-      opts[:commission] || (tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE)
-    end
-
     def add_inputs(tx)
-      threaded_job(opts[:utxos]) do |utxo|
-        utxo['tx'] = prev_tx(utxo)
-        tx.add_in(input(utxo))
+      opts[:utxos].each do |utxo|
+        tx.in << input(utxo)
       end
     end
 
     def input(utxo)
-      ::Bitcoin::Protocol::TxIn.new(utxo['tx'].binary_hash, utxo['vout'], 0)
-    end
-
-    def prev_tx(utxo)
-      ::Bitcoin::Protocol::Tx.new(
-        opts[:blockchain].get_raw_tx(utxo['txid']).body
+      Bitcoin::TxIn.new(
+        out_point: Bitcoin::OutPoint.new(utxo['txid'].htb.reverse, utxo['vout'])
       )
     end
 
     def output(amount, to)
-      ::Bitcoin::Protocol::TxOut.value_to_address(amount, to)
+      Bitcoin::TxOut.new(
+        value: amount,
+        script_pubkey: to
+      )
     end
 
-    def script_signature(key, signature)
-      digest = OpenSSL::Digest::SHA256.new
-      message_hash = digest.digest(signature)
+    def to_address(address)
+      Bitcoin::Script.parse_from_addr(address)
+    end
 
-      Bitcoin::Script.to_signature_pubkey_script(
-        key.sign(digest, message_hash),
-        key.public_key.to_bn.to_s(2),
-        HASH_TYPE
-      )
+    def balance
+      opts[:utxos].sum { |utxo| utxo['value'] }
+    end
+
+    def add_commission
+      tx.outputs.last.value -= commission
+    end
+
+    def commission
+      opts[:commission] || (tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE)
     end
   end
 end

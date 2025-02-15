@@ -42,17 +42,8 @@ module BtcSender
 
     def show_info
       within_window do
-        puts "Address: #{engine.key.addr}"
-        puts "Network: #{network(Bitcoin.network.values[8])}"
-      end
-    end
-
-    def network(network)
-      case network
-      when "bc"
-       'Bitcoin Core'
-      when "tb"
-        'Testnet'
+        puts "Address: #{engine.key.to_addr}"
+        puts "Network: #{Bitcoin.chain_params.network}"
       end
     end
 

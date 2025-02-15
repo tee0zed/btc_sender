@@ -19,7 +19,7 @@ require 'pry'
 
 Dir[File.join(File.dirname(__FILE__), '../lib/**/*.rb')].each { |f| require f }
 
-Bitcoin.network = :testnet3
+Bitcoin.chain_params = :signet
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
