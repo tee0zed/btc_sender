@@ -26,9 +26,8 @@ module BtcSender
 
     def utxos
       @utxos ||= begin
-        blockchain.get_utxos(key.to_addr).parsed_response.threaded_map do |utxo, _|
-          utxo['raw_tx'] = blockchain.get_raw_tx(utxo['txid']).b
-          utxo
+        blockchain.get_utxos(key.to_address).parsed_response.threaded_each do |utxo|
+          utxo['raw_tx'] = blockchain.get_raw_tx(utxo['txid']).body
         end
       end
     end
@@ -53,7 +52,7 @@ module BtcSender
 
     def tx_builder(to, amount, opts = {})
       utxos = utxos_by_strategy(opts[:strategy] || :shrink, amount)
-      TransactionBuilder.new(amount, to, key.to_addr, utxos: utxos, commission_multiplier: opts[:commission_multiplier], blockchain: blockchain)
+      TransactionBuilder.new(amount, to, key.to_address, utxos:, commission_multiplier: opts[:commission_multiplier], blockchain:)
     end
 
     private

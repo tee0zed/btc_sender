@@ -1,5 +1,5 @@
 RSpec.describe BtcSender::Blockchain do
-  let(:client) { described_class.new(signet: true) }
+  let(:client) { described_class.new(network: :signet) }
 
   describe '#get_utxos' do
     let(:address) { 'some_address' }
@@ -70,7 +70,7 @@ RSpec.describe BtcSender::Blockchain do
 
     context 'when request fails with SockerError' do
       before do
-        allow(client._client).to receive(:get).and_raise(SocketError)
+        allow(described_class).to receive(:get).and_raise(SocketError)
       end
 
       it 'returns a failure response' do

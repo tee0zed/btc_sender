@@ -47,7 +47,7 @@ describe BtcSender::TransactionBuilder do
   end
 
   describe '#sign_tx' do
-    let(:private_key) { ::Bitcoin::Key.generate }
+    let(:private_key) { instance_double(BtcSender::Key, to_address: Bitcoin::Key.generate.to_addr, sign: 'signature', pubkey: 'pubkey') }
 
     before do
       builder.build_tx
@@ -57,16 +57,7 @@ describe BtcSender::TransactionBuilder do
       it 'signs the transaction and verifies signatures' do
         expect { subject.sign_tx(private_key) }.not_to raise_error
         subject.tx.in.each do |input|
-          expect(input.script_sig).not_to be_nil
-        end
-      end
-
-      context 'when transaction is built' do
-        it 'signs the transaction and verifies signatures' do
-          expect { subject.sign_tx(private_key) }.not_to raise_error
-          subject.tx.in.each do |input|
-            expect(input.script_sig).not_to be_nil
-          end
+          expect(input.script_sig.chunks).not_to be_empty
         end
       end
     end

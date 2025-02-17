@@ -6,6 +6,7 @@ module BtcSender
   end
   class InvalidTransactionError < CLIError; end
   class InsufficientFundsError < CLIError; end
+  class DustError < CLIError; end
   class SignatureError < CLIError; end
   class ConnectionError < CLIError; end
 end

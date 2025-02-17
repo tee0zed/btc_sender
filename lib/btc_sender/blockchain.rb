@@ -1,47 +1,53 @@
 require_relative 'utils/errors'
+require 'httparty'
 
 module BtcSender
   class Blockchain
+    include HTTParty
+
     SIGNET_BASE_URI = 'https://mempool.space/signet/api'.freeze
     MAINNET_BASE_URI = 'https://mempool.space/api'.freeze
+    TESTNET_BASE_URI = 'https://blockstream.info/testnet/api/'.freeze
 
-    attr_reader :_client
-    def initialize(signet: true)
-      @_client = built_client(signet ? SIGNET_BASE_URI : MAINNET_BASE_URI)
+    def initialize(network: :mainnet)
+      self.class.base_uri(
+        case network
+        when :signet
+          SIGNET_BASE_URI
+        when :testnet
+          TESTNET_BASE_URI
+        else
+          MAINNET_BASE_URI
+        end
+      )
     end
 
     def get_utxos(address)
-      handle_request { _client.get("/address/#{address}/utxo") }
+      handle_request { self.class.get("/address/#{address}/utxo") }
     end
 
     def get_tx(txid)
-      with_cache(txid) { handle_request { _client.get("/tx/#{txid}") }  }
+      with_cache(txid) { handle_request { self.class.get("/tx/#{txid}") }  }
     end
 
     def get_raw_tx(txid)
-      with_cache("raw_#{txid}") { handle_request { _client.get("/tx/#{txid}/raw") } }
+      with_cache("raw_#{txid}") { handle_request { self.class.get("/tx/#{txid}/raw") } }
     end
 
     def relay_tx(hex)
-      handle_request {  _client.post("/tx", body: hex) }
+      handle_request {  self.class.post("/tx", body: hex) }
     end
 
     private
 
     def handle_request
       response = yield
-    rescue StandardError => e
+    rescue StandardError, OpenSSLError => e
       raise BtcSender::ConnectionError, e.message
     else
       raise BtcSender::ConnectionError, "Request failed: #{response.code.to_s} #{response.body}" unless response.success?
-      response
-    end
 
-    def built_client(base_uri)
-      Class.new do
-        include HTTParty
-        base_uri(base_uri)
-      end
+      response
     end
 
     def cache

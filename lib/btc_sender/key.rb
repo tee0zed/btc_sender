@@ -1,15 +1,17 @@
 require 'forwardable'
 
 module BtcSender
-  class Address
+  class Key
     extend Forwardable
 
     DEFAULT_WIF_PATH = './wif.txt'.freeze
+    ADDRESSES_TYPES = %i[p2wpkh p2wsh].freeze
 
-    def_delegators :@instance, :to_addr, :pubkey, :to_wif, :sign
-    attr_reader :key_provider, :instance
-    def initialize(key_provider)
+    def_delegators :@instance, :pubkey, :to_wif, :sign
+    attr_reader :key_provider, :type, :instance
+    def initialize(key_provider, type: :p2wpkh)
       @key_provider = key_provider
+      @type = ADDRESSES_TYPES.include?(type) ? type : :p2wpkh
       @instance = nil
     end
 
@@ -35,6 +37,10 @@ module BtcSender
       @instance = key_provider.generate.tap do |k|
         safe_save(k.to_wif)
       end
+    end
+
+    def to_address
+      instance.public_send("to_#{type}")
     end
 
     private

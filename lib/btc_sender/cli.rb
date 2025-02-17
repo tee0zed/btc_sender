@@ -42,7 +42,7 @@ module BtcSender
 
     def show_info
       within_window do
-        puts "Address: #{engine.key.to_addr}"
+        puts "Address: #{engine.key.to_address}"
         puts "Network: #{Bitcoin.chain_params.network}"
       end
     end
@@ -83,7 +83,8 @@ module BtcSender
         commission_multiplier = validatable_input(validation: ->(input) { input.to_f > 0 && input.to_f.round(1) == input.to_f })
 
         print "Do you want to consolidate all addresses UTXOs or use the fewest?: (0/1) "
-        strategy = validatable_input(validation: ->(input) { [0, 1].include?(input.to_i) })
+        strategy_input = validatable_input(validation: ->(input) { [0, 1].include?(input.to_i) })
+        strategy = strategy_input.to_i == 0 ? :shrink : :fewest
 
         puts
         puts
@@ -100,7 +101,7 @@ module BtcSender
 
       until validation.call(input)
         print "Invalid input, try again: "
-        exit if input == "exit"
+        exit if input.chomp == "exit"
         input = STDIN.gets.chomp
       end
 
@@ -108,6 +109,8 @@ module BtcSender
     end
 
     def within_window
+      system('clear') || system('cls')
+
       puts
       puts
       yield
