@@ -3,17 +3,26 @@
 require "./lib/btc_sender"
 require "./lib/btc_sender/cli"
 
-testnet = ARGV.include?("--testnet")
-Bitcoin.network = testnet ? :testnet : :bitcoin
+network = case ARGV
+          when ["--testnet"]
+            :testnet
+          when ["--signet"]
+            :signet
+          else
+            :mainnet
+          end
 
-address = BtcSender::Address.new(Bitcoin::Key)
-if ARGV.include?("--path")
-  key = address.restore(ARGV[ARGV.index("--path") + 1])
-else
-  key = address.restore
+Bitcoin.chain_params = network
+
+key = BtcSender::Key.new(Bitcoin::Key)
+
+key_opts = {}.tap do |options|
+  options[:wif_path] = ARGV[ARGV.index("--path") + 1] if ARGV.include?("--path")
+  options[:wif_string] = ENV['WIF']
 end
 
-blockchain = BtcSender::Blockchain.new(testnet: testnet)
-engine = BtcSender::Engine.new(key: key, blockchain: blockchain)
+key.restore(**key_opts)
+blockchain = BtcSender::Blockchain.new(network:)
+engine = BtcSender::Engine.new(key:, blockchain:)
 
-BtcSender::CLI.new(engine: engine).run
+BtcSender::CLI.new(engine:).run

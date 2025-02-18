@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Entities
   class Bitcoin
     def initialize(satoshis)

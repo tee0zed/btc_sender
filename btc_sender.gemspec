@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ['T Zhuk']
   spec.email = ['tee0zed@gmail.com']
 
-  spec.summary = 'Minimalistic tBTC sender.'
-  spec.description = 'Minimalistic BTC sender.'
+  spec.summary = 'Minimalistic tBTC and BTC sender.'
+  spec.description = 'Minimalistic tBTC and BTC sender.'
   spec.required_ruby_version = '>= 2.7.7'
 
   # Specify which files should be added to the gem when it is released.
@@ -24,6 +24,11 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bitcoin-ruby'
-  spec.add_development_dependency 'httparty'
+  spec.add_runtime_dependency 'bundler'
+  spec.add_runtime_dependency 'bitcoinrb'
+  spec.add_runtime_dependency 'httparty'
+
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'webmock'
+  spec.add_development_dependency 'pry'
 end

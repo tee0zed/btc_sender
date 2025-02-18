@@ -1,7 +1,7 @@
-RSpec.describe BtcSender::Address do
+RSpec.describe BtcSender::Key do
   let(:wif_path) { 'wif.txt' }
   let(:wif_value) { 'wif_value' }
-  let(:key_provider) { double(from_base58: instance_double('Bitcoin::Key'), generate: instance_double('Bitcoin::Key',to_base58: wif_value)) }
+  let(:key_provider) { double(from_wif: instance_double('Bitcoin::Key'), generate: instance_double('Bitcoin::Key', to_wif: wif_value)) }
 
   subject(:address) { described_class.new(key_provider) }
 
@@ -14,7 +14,7 @@ RSpec.describe BtcSender::Address do
       before { allow(File).to receive(:read).with(wif_path).and_return(wif_value) }
 
       it 'restores itself from file' do
-        address.restore(wif_path)
+        address.restore(wif_path:)
         expect(address.instance).not_to be_nil
       end
     end
@@ -26,7 +26,7 @@ RSpec.describe BtcSender::Address do
       end
 
       it 'generates and saves a new address' do
-        address.restore(wif_path)
+        address.restore(wif_path:)
         expect(address).to have_received(:generate_and_save)
       end
     end

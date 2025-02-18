@@ -14,14 +14,19 @@ If the wif.txt file is not present, the program will generate a new one.
 - You can choose between consolidating all the UTXOs in the wallet or sending a specific amount to a given address during transaction.
 - You can see spendable outputs and the raw balance of the wallet.
 - You can adjust the fee rate. (The default is 2 sat/vB). Commission calculation is based on the size of the transaction in vB.
-- You can restore WIF from the any absolute path. Just run the following command:
+- You can restore WIF from any absolute path. Just run the following command, or you can restore it from `ENV['WIF_PATH']` string.
 ```bash
 bin/btc_sender --path /path/to/wif.txt
 ```
 
-- You can use the testnet. Just run the following command:
+
+- You can use the signet, testnet or mainnet. Just run the following command:
 ```bash
+bin/btc_sender --signet
+
 bin/btc_sender --testnet
+
+bin/btc_sender # mainnet
 ```
 
 ## Docker
@@ -30,5 +35,5 @@ You can also run the program using docker. Just run the following command:
 ```bash
 docker build -t btc_sender .
 docker run --rm -it btc_sender
-bin/btc_sender --testnet
+bin/btc_sender
 ```

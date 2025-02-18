@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/btc_sender/utils/threadable'
 require './lib/btc_sender/utils/errors'
 require 'bitcoin'
@@ -5,12 +7,13 @@ require 'bitcoin'
 module BtcSender
   class TransactionBuilder
     include Utils::Threadable
-    include Bitcoin::Builder
 
-    SAT_PER_BYTE = 2
-    HASH_TYPE = Bitcoin::Script::SIGHASH_TYPE[:all]
+    DEFAULT_SAT_PER_BYTE = 2
+    DUST_THRESHOLD = 546
+    HASH_TYPE = ::Bitcoin::SIGHASH_TYPE[:all]
 
     attr_reader :amount, :to, :from, :tx, :opts
+
     def initialize(amount, to, from, opts = {})
       @opts = opts
       @amount = amount
@@ -20,7 +23,7 @@ module BtcSender
     end
 
     def build_tx
-      build_raw_tx
+      @tx = build_raw_tx
 
       check_balance!
       add_commission
@@ -31,16 +34,13 @@ module BtcSender
     def sign_tx(key)
       check_tx!
 
-      threaded_job(tx.in) do |input, i|
-        prev_tx = opts[:utxos][i]['tx']
-        input.script_sig = script_signature(key,
-          tx.signature_hash_for_input(i, prev_tx, HASH_TYPE)
-        )
+      tx.in.each_with_index do |input, i|
+        utxo = opts[:utxos][i]
+        utxo_out = Bitcoin::Tx.parse_from_payload(utxo['raw_tx'].b).out[utxo['vout']]
+        sign_input(input, utxo_out, i, key)
+      end
 
-        tx.verify_input_signature(i, prev_tx)
-      end.map(&:value).all?
-    rescue StandardError => e
-      raise BtcSender::InvalidTransactionError, e.message
+      true
     end
 
     def tx_payload
@@ -49,65 +49,94 @@ module BtcSender
 
     private
 
+    def sign_input(input_to_sign, utxo_out, input_index, key)
+      out_pubkey = utxo_out.script_pubkey
+
+      if out_pubkey.p2wpkh? || out_pubkey.p2wsh?
+        sig_hash = tx.sighash_for_input(input_index, out_pubkey, sig_version: :witness_v0, amount: utxo_out.value)
+        input_to_sign.script_witness.stack << signature(sig_hash, key)
+        input_to_sign.script_witness.stack << key.pubkey.htb
+
+        tx.verify_input_sig(input_index, out_pubkey, amount: utxo_out.value)
+      else
+        warn 'Signing legacy input'
+
+        sig_hash = tx.sighash_for_input(input_index, out_pubkey)
+        input_to_sign.script_sig << signature(sig_hash, key)
+        input_to_sign.script_sig << key.pubkey.htb
+      end
+    end
+
+    def signature(sig_hash, key)
+      key.sign(sig_hash) + [HASH_TYPE].pack('C')
+    end
+
     def check_tx!
       raise BtcSender::InvalidTransactionError, 'Transaction not built' unless tx
     end
 
     def check_balance!
-      raise BtcSender::InsufficientFundsError, "Insufficient funds #{balance} < #{amount + commission}" if balance < amount + commission
+      if balance < amount + commission
+        raise BtcSender::InsufficientFundsError,
+              "Insufficient funds (with commission) #{balance} < #{amount + commission}"
+      end
+      return unless amount < DUST_THRESHOLD
+
+      raise BtcSender::DustError,
+            "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}"
     end
 
     def build_raw_tx
-      @tx ||= ::Bitcoin::Protocol::Tx.new.tap do |tx|
+      Bitcoin::Tx.new.tap do |tx|
         add_inputs(tx)
-        tx.add_out(output(amount, to))
-        tx.add_out(output(balance - amount, from))
+        tx.outputs << output(amount, to)
+        tx.outputs << output(balance - amount, from)
       end
-
-      self
     rescue StandardError => e
       raise BtcSender::InvalidTransactionError, e.message
     end
 
-    def balance
-      opts[:utxos].reduce(0) { |sum, utxo| sum + utxo['value'] }
-    end
-
-    def add_commission
-      tx.out[1].value -= commission
-    end
-
-    def commission
-      opts[:commission] || (tx.to_payload.bytesize * (opts[:commission_multiplier].to_f || 1) * SAT_PER_BYTE)
-    end
-
     def add_inputs(tx)
-      threaded_job(opts[:utxos]) do |utxo|
-        utxo['tx'] = prev_tx(utxo)
-        tx.add_in(input(utxo))
+      opts[:utxos].each do |utxo|
+        tx.in << input(utxo)
       end
     end
 
     def input(utxo)
-      ::Bitcoin::Protocol::TxIn.new(utxo['tx'].binary_hash, utxo['vout'], 0)
-    end
-
-    def prev_tx(utxo)
-      ::Bitcoin::Protocol::Tx.new(
-        opts[:blockchain].get_raw_tx(utxo['txid']).body
+      Bitcoin::TxIn.new(
+        out_point: Bitcoin::OutPoint.from_txid(utxo['txid'], utxo['vout'])
       )
     end
 
     def output(amount, to)
-      ::Bitcoin::Protocol::TxOut.value_to_address(amount, to)
+      Bitcoin::TxOut.new(
+        value: amount,
+        script_pubkey: Bitcoin::Script.parse_from_addr(to)
+      )
     end
 
-    def script_signature(key, signature)
-      Bitcoin::Script.to_signature_pubkey_script(
-        key.sign(signature),
-        key.pub.htb,
-        HASH_TYPE
-      )
+    def balance
+      opts[:utxos].sum { |utxo| utxo['value'] }
+    end
+
+    def add_commission
+      change_output = tx.outputs.last.value - commission
+
+      if change_output < DUST_THRESHOLD || change_output <= 0
+        tx.outputs.pop
+        new_required_fee = commission
+
+        if tx.outputs.last.value < new_required_fee
+          raise BtcSender::InsufficientFundsError,
+                "Fee insufficient after adjusting for dust change. Required: #{new_required_fee}, Available: #{actual_fee}"
+        end
+      else
+        tx.outputs.last.value = change_output
+      end
+    end
+
+    def commission
+      opts[:commission] || (tx.to_payload.bytesize * (opts[:commission_multiplier] || 1).to_f * DEFAULT_SAT_PER_BYTE)
     end
   end
 end

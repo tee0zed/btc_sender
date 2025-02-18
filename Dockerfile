@@ -1,6 +1,6 @@
-FROM ruby:2.7.8
-ENV BUNDLER_VERSION '2.4.22'
-RUN gem install bundler -v "$BUNDLER_VERSION"
+FROM ruby:3.3.4
+
+RUN gem install bundler
 
 WORKDIR /btc_sender
 
@@ -10,4 +10,4 @@ COPY btc_sender.gemspec /btc_sender/
 
 RUN bundle install
 
-CMD ["/bin/bash"]
+CMD ["bin/btc_sender"]
