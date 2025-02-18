@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    btc_sender (0.1.0)
+    btc_sender (0.2.0)
       bitcoinrb
       bundler
       httparty

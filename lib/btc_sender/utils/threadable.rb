@@ -1,5 +1,3 @@
-require 'concurrent'
-
 module BtcSender
   module Utils
     module Threadable

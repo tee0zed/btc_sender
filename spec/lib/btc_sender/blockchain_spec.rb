@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe BtcSender::Blockchain do
   let(:client) { described_class.new(network: :signet) }
 

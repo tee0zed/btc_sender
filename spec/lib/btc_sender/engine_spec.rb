@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe BtcSender::Engine do
   let(:key) { double('Key', to_address: 'sender_address') }
   let(:blockchain) { double('Blockchain') }
@@ -6,12 +8,11 @@ RSpec.describe BtcSender::Engine do
 
   let(:utxos) do
     [
-      { 'txid' => 'prev_tx_1', 'vout' => 0, 'value' => 60000, 'status' => { 'confirmed' => true } },
-      { 'txid' => 'prev_tx_2', 'vout' => 1, 'value' => 70000, 'status' => { 'confirmed' => true } },
-      { 'txid' => 'prev_tx_3', 'vout' => 0, 'value' => 80000, 'status' => { 'confirmed' => false } },
+      { 'txid' => 'prev_tx_1', 'vout' => 0, 'value' => 60_000, 'status' => { 'confirmed' => true } },
+      { 'txid' => 'prev_tx_2', 'vout' => 1, 'value' => 70_000, 'status' => { 'confirmed' => true } },
+      { 'txid' => 'prev_tx_3', 'vout' => 0, 'value' => 80_000, 'status' => { 'confirmed' => false } }
     ]
   end
-
 
   before do
     allow(blockchain).to receive(:get_utxos).with(key.to_address).and_return(double('Response', parsed_response: utxos))
@@ -20,13 +21,13 @@ RSpec.describe BtcSender::Engine do
 
   describe '#raw_balance' do
     it 'calculates the raw balance correctly' do
-      expect(subject.raw_balance).to eq(210000)
+      expect(subject.raw_balance).to eq(210_000)
     end
   end
 
   describe '#spendable_balance' do
     it 'calculates the spendable balance correctly' do
-      expect(subject.spendable_balance).to eq(130000)
+      expect(subject.spendable_balance).to eq(130_000)
     end
   end
 
@@ -45,7 +46,7 @@ RSpec.describe BtcSender::Engine do
 
   describe '#send_funds!' do
     let(:to_address) { 'receiver_address' }
-    let(:amount) { 50000 }
+    let(:amount) { 50_000 }
     let(:opts) { {} }
 
     let(:builder) { instance_double(BtcSender::TransactionBuilder, build_tx: true, sign_tx: true, tx: tx) }
@@ -69,7 +70,7 @@ RSpec.describe BtcSender::Engine do
 
   describe '#tx_builder' do
     let(:to_address) { 'receiver_address' }
-    let(:amount) { 50000 }
+    let(:amount) { 50_000 }
     let(:opts) { {} }
     let(:builder) { instance_double(BtcSender::TransactionBuilder) }
 
@@ -81,7 +82,8 @@ RSpec.describe BtcSender::Engine do
     it 'creates a TransactionBuilder instance with correct parameters' do
       expect(subject.tx_builder(to_address, amount, opts)).to eq(builder)
       expect(subject).to have_received(:utxos_by_strategy).with(:shrink, amount)
-      expect(BtcSender::TransactionBuilder).to have_received(:new).with(amount, to_address, key.to_address, utxos: utxos, commission_multiplier: nil, blockchain: blockchain)
+      expect(BtcSender::TransactionBuilder).to have_received(:new).with(amount, to_address, key.to_address,
+                                                                        utxos: utxos, commission_multiplier: nil, blockchain: blockchain)
     end
   end
 end

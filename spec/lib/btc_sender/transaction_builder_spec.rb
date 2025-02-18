@@ -1,17 +1,21 @@
+# frozen_string_literal: true
+
 describe BtcSender::TransactionBuilder do
   let(:utxos) do
     [{
-       "txid"=>"53058ad2be32b47dd722b6ab43ea9bdb84f5202eb04945835523410480bc9cd1",
-       "vout"=>1,
-       "raw_tx" => raw_tx,
-       "status"=>{"confirmed"=>true, "block_height"=>2578542, "block_hash"=>"000000000000000c03249d6b15f6441f6227418207d37cf3549b90db0b29b7ab", "block_time"=>1708260900},
-       "value"=>balance}]
+      'txid' => '53058ad2be32b47dd722b6ab43ea9bdb84f5202eb04945835523410480bc9cd1',
+      'vout' => 1,
+      'raw_tx' => raw_tx,
+      'status' => { 'confirmed' => true, 'block_height' => 2_578_542,
+                    'block_hash' => '000000000000000c03249d6b15f6441f6227418207d37cf3549b90db0b29b7ab', 'block_time' => 1_708_260_900 },
+      'value' => balance
+    }]
   end
 
   let(:balance) { 4_000_000 }
   let(:amount) { 3_000_000 }
-  let(:recipient) { "mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB" }
-  let(:sender) { "msT2GFQnXWTyf3r3MXBHw4sFV1jcUG4o12" }
+  let(:recipient) { 'mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB' }
+  let(:sender) { 'msT2GFQnXWTyf3r3MXBHw4sFV1jcUG4o12' }
   let(:blockchain) { instance_double(BtcSender::Blockchain) }
   let(:options) { { utxos: utxos, blockchain: blockchain } }
   let(:raw_tx) { Base64.decode64(File.read('spec/support/fixtures/raw_tx')) }
@@ -47,7 +51,9 @@ describe BtcSender::TransactionBuilder do
   end
 
   describe '#sign_tx' do
-    let(:private_key) { instance_double(BtcSender::Key, to_address: Bitcoin::Key.generate.to_addr, sign: 'signature', pubkey: 'pubkey') }
+    let(:private_key) do
+      instance_double(BtcSender::Key, to_address: Bitcoin::Key.generate.to_addr, sign: 'signature', pubkey: 'pubkey')
+    end
 
     before do
       builder.build_tx
