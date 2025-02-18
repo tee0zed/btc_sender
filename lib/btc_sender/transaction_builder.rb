@@ -76,7 +76,7 @@ module BtcSender
     end
 
     def check_balance!
-      raise BtcSender::InsufficientFundsError, "Insufficient funds #{balance} < #{amount + commission}" if balance < amount + commission
+      raise BtcSender::InsufficientFundsError, "Insufficient funds (with commission) #{balance} < #{amount + commission}" if balance < amount + commission
       raise BtcSender::DustError, "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}" if amount < DUST_THRESHOLD
     end
 

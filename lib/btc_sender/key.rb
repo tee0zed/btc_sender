@@ -9,14 +9,19 @@ module BtcSender
 
     def_delegators :@instance, :pubkey, :to_wif, :sign
     attr_reader :key_provider, :type, :instance
+
     def initialize(key_provider, type: :p2wpkh)
       @key_provider = key_provider
       @type = ADDRESSES_TYPES.include?(type) ? type : :p2wpkh
       @instance = nil
     end
 
-    def restore(wif_path = DEFAULT_WIF_PATH)
-      from_file(wif_path)
+    def restore(wif_path: DEFAULT_WIF_PATH, wif_string: nil)
+      if wif_string
+        from_string(wif_string)
+      else
+        from_file(wif_path)
+      end
     rescue Errno::ENOENT
       generate_and_save
     ensure

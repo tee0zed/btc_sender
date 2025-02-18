@@ -18,8 +18,8 @@ module BtcSender
     private
 
     def display_menu
-      puts "1. Spendable balance"
-      puts "2. Raw balance"
+      puts "1. Confirmed balance"
+      puts "2. Unconfirmed balance"
       puts "3. Send funds"
       puts "4. Address info"
       puts "5. Exit"
@@ -52,7 +52,7 @@ module BtcSender
         engine.refresh_utxos
 
         btc = Entities::Bitcoin.new(engine.raw_balance)
-        puts "Raw balance: #{btc.inspect}"
+        puts "Unconfirmed balance: #{btc.inspect}"
         engine.utxos.each do |utxo|
           puts "#{utxo['txid']} - #{utxo['value']}: #{utxo['status']['confirmed'] ? 'confirmed' : 'unconfirmed'}"
         end
@@ -64,7 +64,7 @@ module BtcSender
         engine.refresh_utxos
 
         btc = Entities::Bitcoin.new(engine.spendable_balance)
-        puts "Spendable balance: #{btc.inspect}"
+        puts "Confirmed balance: #{btc.inspect}"
         engine.spendable_utxos.each do |utxo|
           puts "#{utxo['txid']} - #{utxo['value']}: #{utxo['status']['confirmed'] ? 'confirmed' : 'unconfirmed'}"
         end
@@ -76,8 +76,8 @@ module BtcSender
         print "Enter receiver address: "
         to = validatable_input(validation: ->(input) { input.size > 25 })
 
-        print "Enter amount: "
-        amount = validatable_input(validation: ->(input) { input.to_i > 0 })
+        print "Enter amount: (in Satoshis or BTC)"
+        amount = validatable_input(validation: ->(input) { input.to_f > 0 })
 
         print "Enter commission multiplier, default is 1: "
         commission_multiplier = validatable_input(validation: ->(input) { input.to_f > 0 && input.to_f.round(1) == input.to_f })
@@ -86,9 +86,11 @@ module BtcSender
         strategy_input = validatable_input(validation: ->(input) { [0, 1].include?(input.to_i) })
         strategy = strategy_input.to_i == 0 ? :shrink : :fewest
 
+        tx_id = engine.send_funds!(to, normalized_amount(amount), commission_multiplier: commission_multiplier, strategy: strategy)
+
         puts
         puts
-        puts "txID: #{engine.send_funds!(to, normalized_amount(amount), commission_multiplier: commission_multiplier, strategy: strategy)}"
+        puts "txID: #{tx_id}"
       end
     end
 

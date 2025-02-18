@@ -16,9 +16,9 @@ Bitcoin.chain_params = network
 
 address = BtcSender::Key.new(Bitcoin::Key)
 if ARGV.include?("--path")
-  key = address.restore(ARGV[ARGV.index("--path") + 1])
+  key = address.restore(wif_path: ARGV[ARGV.index("--path") + 1])
 else
-  key = address.restore
+  key = address.restore(wif_string: ENV['WIF'])
 end
 
 blockchain = BtcSender::Blockchain.new(network: network)
