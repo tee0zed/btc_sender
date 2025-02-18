@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'forwardable'
 
 module BtcSender
   class Key
     extend Forwardable
 
-    DEFAULT_WIF_PATH = './wif.txt'.freeze
+    DEFAULT_WIF_PATH = './wif.txt'
     ADDRESSES_TYPES = %i[p2wpkh p2wsh].freeze
 
     def_delegators :@instance, :pubkey, :to_wif, :sign
@@ -24,14 +26,10 @@ module BtcSender
       end
     rescue Errno::ENOENT
       generate_and_save
-    ensure
-      self
     end
 
     def from_string(wif)
       @instance = key_provider.from_wif(wif)
-
-      self
     end
 
     def from_file(wif_path = DEFAULT_WIF_PATH)

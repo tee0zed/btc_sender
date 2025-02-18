@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require_relative '../btc_sender'
 require_relative 'entities/bitcoin'
 
 module BtcSender
   class CLI
-    attr_accessor :engine
+    attr_reader :engine
+
     def initialize(engine:)
       @engine = engine
     end
@@ -11,22 +14,22 @@ module BtcSender
     def run
       loop do
         display_menu
-        handle_menu
+        handle_select
       end
     end
 
     private
 
     def display_menu
-      puts "1. Confirmed balance"
-      puts "2. Unconfirmed balance"
-      puts "3. Send funds"
-      puts "4. Address info"
-      puts "5. Exit"
+      puts '1. Confirmed balance'
+      puts '2. Unconfirmed balance'
+      puts '3. Send funds'
+      puts '4. Address info'
+      puts '5. Exit'
     end
 
-    def handle_menu
-      case STDIN.gets.chomp.to_i
+    def handle_select
+      case $stdin.gets.chomp.to_i
       when 1
         show_balance
       when 2
@@ -73,20 +76,23 @@ module BtcSender
 
     def send_funds
       within_window do
-        print "Enter receiver address: "
+        print 'Enter receiver address: '
         to = validatable_input(validation: ->(input) { input.size > 25 })
 
-        print "Enter amount: (in Satoshis or BTC)"
-        amount = validatable_input(validation: ->(input) { input.to_f > 0 })
+        print 'Enter amount: (in Satoshis or BTC)'
+        amount = validatable_input(validation: ->(input) { input.to_f.positive? })
 
-        print "Enter commission multiplier, default is 1: "
-        commission_multiplier = validatable_input(validation: ->(input) { input.to_f > 0 && input.to_f.round(1) == input.to_f })
+        print 'Enter commission multiplier, default is 1: '
+        commission_multiplier = validatable_input(validation: lambda { |input|
+          input.to_f.positive? && input.to_f.round(1) == input.to_f
+        })
 
-        print "Do you want to consolidate all addresses UTXOs or use the fewest?: (0/1) "
+        print 'Do you want to consolidate all addresses UTXOs or use the fewest?: (0/1) '
         strategy_input = validatable_input(validation: ->(input) { [0, 1].include?(input.to_i) })
-        strategy = strategy_input.to_i == 0 ? :shrink : :fewest
+        strategy = strategy_input.to_i.zero? ? :shrink : :fewest
 
-        tx_id = engine.send_funds!(to, normalized_amount(amount), commission_multiplier: commission_multiplier, strategy: strategy)
+        tx_id = engine.send_funds!(to, normalized_amount(amount), commission_multiplier: commission_multiplier,
+                                                                  strategy: strategy)
 
         puts
         puts
@@ -99,12 +105,12 @@ module BtcSender
     end
 
     def validatable_input(validation:)
-      input = STDIN.gets.chomp
+      input = $stdin.gets.chomp
 
       until validation.call(input)
-        print "Invalid input, try again: "
-        exit if input.chomp == "exit"
-        input = STDIN.gets.chomp
+        print 'Invalid input, try again: '
+        exit if input.chomp == 'exit'
+        input = $stdin.gets.chomp
       end
 
       input

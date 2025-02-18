@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/btc_sender/utils/threadable'
 require './lib/btc_sender/utils/errors'
 require 'bitcoin'
@@ -11,7 +13,6 @@ module BtcSender
     HASH_TYPE = ::Bitcoin::SIGHASH_TYPE[:all]
 
     attr_reader :amount, :to, :from, :tx, :opts
-    attr_accessor :tx
 
     def initialize(amount, to, from, opts = {})
       @opts = opts
@@ -22,7 +23,7 @@ module BtcSender
     end
 
     def build_tx
-      self.tx = build_raw_tx
+      @tx = build_raw_tx
 
       check_balance!
       add_commission
@@ -36,7 +37,7 @@ module BtcSender
       tx.in.each_with_index do |input, i|
         utxo = opts[:utxos][i]
         utxo_out = Bitcoin::Tx.parse_from_payload(utxo['raw_tx'].b).out[utxo['vout']]
-        sign_input(input, utxo_out , i, key)
+        sign_input(input, utxo_out, i, key)
       end
 
       true
@@ -50,16 +51,15 @@ module BtcSender
 
     def sign_input(input_to_sign, utxo_out, input_index, key)
       out_pubkey = utxo_out.script_pubkey
-      valid = false
 
       if out_pubkey.p2wpkh? || out_pubkey.p2wsh?
         sig_hash = tx.sighash_for_input(input_index, out_pubkey, sig_version: :witness_v0, amount: utxo_out.value)
         input_to_sign.script_witness.stack << signature(sig_hash, key)
         input_to_sign.script_witness.stack << key.pubkey.htb
 
-        valid = tx.verify_input_sig(input_index, out_pubkey, amount: utxo_out.value)
+        tx.verify_input_sig(input_index, out_pubkey, amount: utxo_out.value)
       else
-        warn "Signing legacy input"
+        warn 'Signing legacy input'
 
         sig_hash = tx.sighash_for_input(input_index, out_pubkey)
         input_to_sign.script_sig << signature(sig_hash, key)
@@ -76,8 +76,14 @@ module BtcSender
     end
 
     def check_balance!
-      raise BtcSender::InsufficientFundsError, "Insufficient funds (with commission) #{balance} < #{amount + commission}" if balance < amount + commission
-      raise BtcSender::DustError, "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}" if amount < DUST_THRESHOLD
+      if balance < amount + commission
+        raise BtcSender::InsufficientFundsError,
+              "Insufficient funds (with commission) #{balance} < #{amount + commission}"
+      end
+      return unless amount < DUST_THRESHOLD
+
+      raise BtcSender::DustError,
+            "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}"
     end
 
     def build_raw_tx
@@ -121,7 +127,8 @@ module BtcSender
         new_required_fee = commission
 
         if tx.outputs.last.value < new_required_fee
-          raise BtcSender::InsufficientFundsError, "Fee insufficient after adjusting for dust change. Required: #{new_required_fee}, Available: #{actual_fee}"
+          raise BtcSender::InsufficientFundsError,
+                "Fee insufficient after adjusting for dust change. Required: #{new_required_fee}, Available: #{actual_fee}"
         end
       else
         tx.outputs.last.value = change_output

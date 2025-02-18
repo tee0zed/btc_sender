@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'utils/errors'
 require 'httparty'
 
@@ -5,9 +7,9 @@ module BtcSender
   class Blockchain
     include HTTParty
 
-    SIGNET_BASE_URI = 'https://mempool.space/signet/api'.freeze
-    MAINNET_BASE_URI = 'https://mempool.space/api'.freeze
-    TESTNET_BASE_URI = 'https://blockstream.info/testnet/api/'.freeze
+    SIGNET_BASE_URI = 'https://mempool.space/signet/api'
+    MAINNET_BASE_URI = 'https://mempool.space/api'
+    TESTNET_BASE_URI = 'https://blockstream.info/testnet/api/'
 
     def initialize(network: :mainnet)
       self.class.base_uri(
@@ -27,7 +29,7 @@ module BtcSender
     end
 
     def get_tx(txid)
-      with_cache(txid) { handle_request { self.class.get("/tx/#{txid}") }  }
+      with_cache(txid) { handle_request { self.class.get("/tx/#{txid}") } }
     end
 
     def get_raw_tx(txid)
@@ -35,7 +37,7 @@ module BtcSender
     end
 
     def relay_tx(hex)
-      handle_request {  self.class.post("/tx", body: hex) }
+      handle_request { self.class.post('/tx', body: hex) }
     end
 
     private
@@ -45,7 +47,10 @@ module BtcSender
     rescue StandardError, OpenSSLError => e
       raise BtcSender::ConnectionError, e.message
     else
-      raise BtcSender::ConnectionError, "Request failed: #{response.code.to_s} #{response.body}" unless response.success?
+      unless response.success?
+        raise BtcSender::ConnectionError,
+              "Request failed: #{response.code} #{response.body}"
+      end
 
       response
     end

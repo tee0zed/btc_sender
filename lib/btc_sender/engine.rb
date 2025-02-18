@@ -6,7 +6,7 @@ module BtcSender
   class Engine
     using Utils::Threadable
 
-    attr_accessor :key, :blockchain
+    attr_reader :key, :blockchain
     def initialize(key:, blockchain:)
       @blockchain = blockchain
       @key = key
