@@ -2,6 +2,9 @@ PATH
   remote: .
   specs:
     btc_sender (0.1.0)
+      bitcoinrb
+      bundler
+      httparty
 
 GEM
   remote: https://rubygems.org/
@@ -91,10 +94,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  bitcoinrb
   btc_sender!
-  bundler
-  httparty
   pry
   rspec
   webmock

@@ -2,6 +2,8 @@ FROM ruby:3.3.4
 
 RUN gem install bundler
 
+ENV WIF=$WIF
+
 WORKDIR /btc_sender
 
 COPY . /btc_sender/
