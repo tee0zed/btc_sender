@@ -24,7 +24,7 @@ module Entities
     def to_satoshis
       @satoshis
     end
-    alias to_i to_satoshis
-    alias value to_satoshis
+    alias_method :to_i, :to_satoshis
+    alias_method :value, :to_satoshis
   end
 end

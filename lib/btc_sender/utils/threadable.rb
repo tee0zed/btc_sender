@@ -20,7 +20,7 @@ module BtcSender
           return each unless block_given?
 
           threads = []
-          each_with_index do |item, i|
+          each_with_index do |item, _i|
             threads << ::Thread.new do
               yield(item)
             end

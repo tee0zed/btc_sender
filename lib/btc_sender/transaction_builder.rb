@@ -92,7 +92,7 @@ module BtcSender
         tx.outputs << output(amount, to)
         tx.outputs << output(balance - amount, from)
       end
-    rescue StandardError => e
+    rescue => e
       raise BtcSender::InvalidTransactionError, e.message
     end
 
