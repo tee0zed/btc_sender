@@ -1,0 +1,337 @@
+
+AllCops:
+  NewCops: enable
+
+Layout/EndOfLine:
+  Enabled: false
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+# Часто ругается на очевидные вещи
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
+Lint/AmbiguousRange:
+  Enabled: false
+
+Lint/UselessAccessModifier:
+  MethodCreatingMethods:
+    - delegate
+
+Metrics/AbcSize:
+  Enabled: false
+
+# Configuration parameters: CountComments, ExcludedMethods.
+Metrics/BlockLength:
+  Enabled: false
+
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Layout/ClassStructure:
+  Enabled: true
+  ExpectedOrder:
+    - module_inclusion
+    - constants
+    - macros_with_inclusion
+    - public_attribute_macros
+    - association
+    - macros
+    - public_delegate
+    - initializer
+    - public_class_methods
+    - public_methods
+    - protected_attribute_macros
+    - protected_methods
+    - private_attribute_macros
+    - private_delegate
+    - private_methods
+  Categories:
+    association:
+      - belongs_to
+      - has_one
+      - has_many
+      - has_and_belongs_to_many
+    attribute_macros:
+      - attr_accessor
+      - attr_reader
+      - attr_writer
+      - enum
+      - serialize
+      - store_as_cents
+    macros:
+      - store_accessor
+      - validates
+      - validate
+      - validates_associated
+      - normalize
+      - after_initialize
+      - before_validation
+      - before_save
+      - before_update
+      - after_save
+      - after_update
+      - after_commit
+      - accepts_nested_attributes_for
+      - scope
+      - ransacker
+    module_inclusion:
+      - include
+      - prepend
+      - extend
+    macros_with_inclusion:
+      - resourcify
+      - devise
+
+Layout/LineLength:
+  Enabled: false
+
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Max: 40
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: prefer_alias, prefer_alias_method
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+
+# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
+# SupportedStyles: with_first_parameter, with_fixed_indentation
+Layout/ParameterAlignment:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/AccessModifierDeclarations:
+  AllowModifiersOnSymbols: true
+
+# Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.
+# SupportedStyles: line_count_based, semantic, braces_for_chaining
+# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
+# FunctionalMethods: let, let!, subject, watch
+# IgnoredMethods: lambda, proc, it
+Style/BlockDelimiters:
+  Enabled: true
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: nested, compact
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: leading, trailing
+Layout/DotPosition:
+  EnforcedStyle: leading
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/EachWithObject:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: compact, expanded
+Style/EmptyMethod:
+  Enabled: false
+
+# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
+Layout/ExtraSpacing:
+  AllowForAlignment: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: format, sprintf, percent
+Style/FormatString:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: when_needed, always, never
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Configuration parameters: MinBodyLength.
+Style/GuardClause:
+  Enabled: false
+
+Style/HashAsLastArrayItem:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
+# SupportedStyles: ruby19, hash_rockets, no_mixed_keys, ruby19_no_mixed_keys
+Style/HashSyntax:
+  Enabled: false
+
+# Configuration parameters: MaxLineLength.
+Style/IfUnlessModifier:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: call, braces
+
+Style/Lambda:
+  EnforcedStyle: literal
+
+Layout/SpaceAroundOperators:
+  EnforcedStyleForExponentOperator: space
+
+Layout/SpaceInLambdaLiteral:
+  EnforcedStyle: require_space
+
+Style/ModuleFunction:
+  Enabled: false
+
+Style/RedundantRegexpEscape:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: symmetrical, new_line, same_line
+Layout/MultilineArrayBraceLayout:
+  SupportedStyles:
+    - symmetrical
+    - new_line
+
+Layout/MultilineBlockLayout:
+  Exclude:
+    - 'spec/**/*'
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: symmetrical, new_line, same_line
+Layout/MultilineHashBraceLayout:
+  SupportedStyles:
+    - symmetrical
+    - new_line
+
+# Включить папку с тестами после фикса https://github.com/bbatsov/rubocop/issues/3331
+# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
+# SupportedStyles: aligned, indented, indented_relative_to_receiver
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented_relative_to_receiver
+  Exclude:
+    - 'spec/**/*'
+
+Style/FetchEnvVar:
+  Enabled: false
+
+Style/MapToHash:
+  Enabled: false
+
+Style/MutableConstant:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
+# SupportedStyles: skip_modifier_ifs, always
+Style/Next:
+  Enabled: false
+
+Style/NumericLiterals:
+  Enabled: false
+
+# Configuration parameters: AutoCorrect, EnforcedStyle, SupportedStyles.
+# SupportedStyles: predicate, comparison
+Style/NumericPredicate:
+  Enabled: false
+
+# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist.
+# NamePrefix: is_, has_, have_
+# NamePrefixBlacklist: is_, has_, have_
+# NameWhitelist: is_a?
+Naming/PredicateName:
+  ForbiddenPrefixes:
+    - 'is_'
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: compact, exploded
+Style/RaiseArgs:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Enabled: false
+
+Style/RescueModifier:
+  Enabled: false
+
+# Configuration parameters: ConvertCodeThatCanStartToReturnNil.
+Style/SafeNavigation:
+  Enabled: false
+
+# Configuration parameters: AllowAsExpressionSeparator.
+Style/Semicolon:
+  AllowAsExpressionSeparator: true
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: snake_case, normalcase, non_integer
+Naming/VariableNumber:
+  Enabled: false
+  EnforcedStyle: snake_case
+
+# Configuration parameters: EnforcedStyle, SupportedStyles, MinSize, WordRegex.
+# SupportedStyles: percent, brackets
+Style/WordArray:
+  Enabled: false
+
+# Все знают что делает rescue
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+
+Style/FormatStringToken:
+  Enabled: false
+
+# Ругается на подчёркивание в качестве имени параметра
+Naming/MethodParameterName:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: optional
+
+# Если так делать на моделях, то будет казаться, что это аттрибут
+# В контроллерах такое выглядит странно
+# Также есть ложные срабатывания
+Naming/AccessorMethodName:
+  Enabled: false
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: special_for_inner_method_call
+
+# If you chain an ordinary method call after a safe navigation operator, it raises NoMethodError.
+# We should use a safe navigation operator after a safe navigation operator. This cop checks for the problem outlined above.
+
+Layout/IndentationWidth:
+  Width: 2
+
+Layout/EndAlignment:
+  Enabled: true
+  EnforcedStyleAlignWith: variable
+
+Layout/AccessModifierIndentation:
+  Enabled: true
+  EnforcedStyle: indent
+
+Layout/DefEndAlignment:
+  Enabled: true
+  EnforcedStyle: def
+
+Layout/RescueEnsureAlignment:
+  Enabled: true
+
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation

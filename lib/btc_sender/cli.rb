@@ -79,7 +79,7 @@ module BtcSender
         print 'Enter receiver address: '
         to = validatable_input(validation: -> (input) { input.size > 25 })
 
-        print 'Enter amount: (in Satoshis or BTC)'
+        print 'Enter amount: (in Satoshis or BTC) '
         amount = validatable_input(validation: -> (input) { input.to_f.positive? })
 
         print 'Enter commission multiplier, default is 1: '
