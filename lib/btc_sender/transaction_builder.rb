@@ -77,13 +77,11 @@ module BtcSender
 
     def check_balance!
       if balance < amount + commission
-        raise BtcSender::InsufficientFundsError,
-              "Insufficient funds (with commission) #{balance} < #{amount + commission}"
+        raise BtcSender::InsufficientFundsError, "Insufficient funds (with commission) #{balance} < #{amount + commission}"
       end
-      return unless amount < DUST_THRESHOLD
-
-      raise BtcSender::DustError,
-            "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}"
+      if amount < DUST_THRESHOLD
+        raise BtcSender::DustError, "Amount is below dust threshold #{amount} < #{DUST_THRESHOLD}"
+      end
     end
 
     def build_raw_tx
@@ -128,7 +126,7 @@ module BtcSender
 
         if tx.outputs.last.value < new_required_fee
           raise BtcSender::InsufficientFundsError,
-                "Fee insufficient after adjusting for dust change. Required: #{new_required_fee}, Available: #{actual_fee}"
+            "Fee insufficient after adjusting for dust change. Required: #{new_required_fee}, Available: #{actual_fee}"
         end
       else
         tx.outputs.last.value = change_output

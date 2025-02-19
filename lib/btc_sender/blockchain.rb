@@ -47,10 +47,7 @@ module BtcSender
     rescue StandardError, OpenSSLError => e
       raise BtcSender::ConnectionError, e.message
     else
-      unless response.success?
-        raise BtcSender::ConnectionError,
-              "Request failed: #{response.code} #{response.body}"
-      end
+      raise BtcSender::ConnectionError, "Request failed: #{response.code} #{response.body}" unless response.success?
 
       response
     end

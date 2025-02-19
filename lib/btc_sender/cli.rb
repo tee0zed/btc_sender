@@ -92,7 +92,7 @@ module BtcSender
         strategy = strategy_input.to_i.zero? ? :shrink : :fewest
 
         tx_id = engine.send_funds!(to, normalized_amount(amount), commission_multiplier: commission_multiplier,
-                                                                  strategy: strategy)
+          strategy: strategy)
 
         puts
         puts
