@@ -1,6 +1,7 @@
 # BtcSender
 
 This is a simple bitcoin sender that uses the blockstream.info API to send bitcoins to a given address.
+Put my head on that it is been written by my hand.
 
 ## Installation
 App will take wif string either from `ENV['WIF']` ENV, or from a file named `wif.txt` in the root of the project.
